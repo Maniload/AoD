@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AoD</title>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script src="jquery-3.3.1.min.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <style>
+        body {
+            display: grid;
+            margin: 0;
+            background-color: #333333;
+            font-family: 'Open Sans', sans-serif;
+        }
+        p, label {
+            color: white;
+            font-size: 14pt;
+            font-weight: bolder;
+            text-wrap: avoid;
+            text-decoration: none;
+        }
+        .wrapper {
+            display: block;
+            text-align: center;
+            width: 100%;
+        }
+        .series {
+            display: inline-block;
+            padding: 10px;
+            position: relative;
+            box-sizing: border-box;
+            width: 20%;
+        }
+        .series-inner {
+            position: relative;
+            padding-top: 56%;
+            box-shadow: #222222 0px 0px 20px 5px;
+            overflow: hidden;
+        }
+        .series-container {
+            text-align: start;
+            width: 100%;
+        }
+        .series-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            text-align: center;
+            width: -webkit-fill-available;
+            line-height: 100%;
+        }
+        .cover {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            left: 0;
+            top: 0;
+            object-fit: cover;
+            margin-left: 50%;
+            transform: translateX(-50%);
+        }
+        .description {
+            text-align: start;
+            font-size: 12pt;
+            text-decoration: none;
+            padding: 10px;
+            color: #EEEEEE;
+            line-height: 14pt;
+        }
+
+        img {
+            transition: width 0.5s;
+        }
+        .series-inner:hover img {
+            width: 110%;
+        }
+
+        .series-overlay {
+            transition: height 0.5s;
+            height: 25%;
+        }
+        .series-inner:hover .series-overlay {
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div id="series-container" class="series-container"></div>
+    </div>
+    <script>
+        $.get("get_series_list.php", function(data) {
+
+            for (let series of data) {
+                let container = $("<div>", { "class": "series" });
+                let innerContainer = $("<div>", { "class": "series-inner" });
+                let anchor = $("<a>", { href: "series.php?url=" + series.url });
+                anchor.append($("<img>", { id: series.id, "class": "cover", src: series.image }));
+                let overlay = $("<div>", { "class": "series-overlay" });
+                overlay.append($("<p>", { html: series.title }));
+                overlay.append($("<p>", { html: series.description, "class": "description" }));
+                anchor.append(overlay);
+                innerContainer.append(anchor);
+                container.append(innerContainer);
+                $("#series-container").append(container);
+
+                $.get("get_series.php", { url: series.url })
+                    .done(function (data) {
+                        $("#" + series.id).attr("src", data.image);
+                    });
+            }
+
+        });
+    </script>
+</body>
+</html>
